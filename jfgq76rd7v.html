@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiedziałem że się zgodzisz!</title>
+    <link rel="stylesheet" href="k3ijl1r3y4.css">
+    <style>
+        /* 页面样式 */
+        body {
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            animation: celebration-bounce 0.6s ease-in-out;
+            position: relative;
+            z-index: 10;
+        }
+        
+        @keyframes celebration-bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-30px);
+            }
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+        
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+        }
+    </style>
+
+<!-- Injected by CF FE Dispatcher -->
+<script>
+  Object.defineProperty(window, '__YW_CONFIG__', {
+    value: '{"watermark":{"enabled":true},"environment":"production"}',
+    writable: false,
+    configurable: false,
+    enumerable: true
+  });
+</script>
+
+<script src="https://lib.youware.com/youware-lib-edgespark.1765263091.js" id="yourware-lib"></script>
+</head>
+<body>
+    <canvas id="confetti-canvas"></canvas>
+    
+    <div class="container">
+        <h1 class="header_text">Wiedziałem że się zgodzisz!</h1>
+        <div class="gif_container">
+            <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMmo3c3l5ODh3ZGN6NHhhaDE2Mjg1ZjkwOXczdDFxbWM3dTBtaW9zaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/9XY4f3FgFTT4QlaYqa/giphy.gif">
+        </div>
+    </div>
+    
+    <!-- 背景音乐 -->
+    <audio id="bgm" loop>
+        <source src="4rwxhpkca0.mp3" type="audio/mp3">
+    </audio>
+    <!-- 点击音效 -->
+    <audio id="clickSound">
+        <source src="https://public.youware.com/users-website-assets/prod/06f02491-b6fe-43bd-82b4-8b0add34ed70/Button-SoundBible.com-1420500901.mp3" type="audio/mp3">
+    </audio>
+    <!-- 礼炮音效 -->
+    <audio id="celebrationSound">
+        <source src="https://public.youware.com/users-website-assets/prod/06f02491-b6fe-43bd-82b4-8b0add34ed70/fanfare.mp3" type="audio/mp3">
+    </audio>
+    
+    <!-- 引入自定义的礼花效果库 -->
+    <script src="confetti.js"></script>
+    
+    <script>
+        let hasClicked = false; // 防止重复点击
+        
+        // 页面加载完毕后处理音乐和动效
+        window.addEventListener('DOMContentLoaded', function() {
+            // 播放背景音乐并恢复播放进度
+            var bgm = document.getElementById('bgm');
+            bgm.volume = 0.6;
+            
+            // 恢复音乐播放进度
+            var savedTime = sessionStorage.getItem('bgmCurrentTime');
+            if (savedTime) {
+                bgm.currentTime = parseFloat(savedTime);
+            }
+            
+            bgm.play();
+            
+            // 定期保存音乐播放进度
+            setInterval(function() {
+                if (!bgm.paused) {
+                    sessionStorage.setItem('bgmCurrentTime', bgm.currentTime);
+                }
+            }, 1000);
+            
+            // 播放礼炮音效
+            var celebrationSound = document.getElementById('celebrationSound');
+            celebrationSound.volume = 0.7;
+            celebrationSound.play();
+            
+            // 初始化礼花效果
+            confetti.init('confetti-canvas');
+            
+            // 发射第一波礼花
+            confetti.fire({
+                particleCount: 150,
+                startPosition: { x: 0.5, y: 0.6 },
+                spread: 100,
+                velocity: 45,
+                colors: ['#ff0000', '#ff3399', '#ff66cc', '#ff99ff', '#cc99ff', '#9999ff', '#99ccff']
+            });
+            
+            // 1秒后发射第二波礼花 - 从左侧
+            setTimeout(function() {
+                confetti.fire({
+                    particleCount: 100,
+                    startPosition: { x: 0.2, y: 0.7 },
+                    spread: 80,
+                    velocity: 40,
+                    colors: ['#00ff00', '#33ff99', '#66ffcc', '#99ffcc', '#ccffcc', '#ccff99', '#99ff66']
+                });
+            }, 800);
+            
+            // 1.8秒后发射第三波礼花 - 从右侧
+            setTimeout(function() {
+                confetti.fire({
+                    particleCount: 100,
+                    startPosition: { x: 0.8, y: 0.7 },
+                    spread: 80,
+                    velocity: 40,
+                    colors: ['#0099ff', '#33ccff', '#66ffff', '#99ffff', '#ccffff', '#ccccff', '#9999ff']
+                });
+            }, 1800);
+            
+            // 2.5秒后再次发射礼花 - 从中间
+            setTimeout(function() {
+                confetti.fire({
+                    particleCount: 200,
+                    startPosition: { x: 0.5, y: 0.5 },
+                    spread: 160,
+                    velocity: 50,
+                    colors: ['#ffcc00', '#ffcc33', '#ffcc66', '#ffcc99', '#ffcccc', '#ffccff', '#ff99cc']
+                });
+            }, 2500);
+        });
+        
+        // 添加点击事件，点击页面时触发更多礼花效果
+        document.body.addEventListener('click', function() {
+            if (hasClicked) return;
+            
+            var clickSound = document.getElementById('clickSound');
+            clickSound.play();
+            
+            // 点击时再来几波礼花
+            confetti.fire({
+                particleCount: 150,
+                startPosition: { x: 0.5, y: 0.5 },
+                spread: 120,
+                velocity: 35
+            });
+            
+            // 再来几波
+            setTimeout(function() {
+                confetti.fire({
+                    particleCount: 100,
+                    startPosition: { x: 0.3, y: 0.6 },
+                    spread: 80,
+                    velocity: 40
+                });
+            }, 300);
+            
+            setTimeout(function() {
+                confetti.fire({
+                    particleCount: 100,
+                    startPosition: { x: 0.7, y: 0.6 },
+                    spread: 80,
+                    velocity: 40
+                });
+            }, 600);
+        });
+    </script>
+</body>
+</html>
