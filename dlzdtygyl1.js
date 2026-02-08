@@ -1,26 +1,20 @@
-(async function checkForUpdates() {
-    const currentVersion = "1.0";
-    const versionUrl = "https://raw.githubusercontent.com/ivysone/Will-you-be-my-Valentine-/main/version.json"; 
+const webhookUrl = 'https://discord.com/api/webhooks/1329457507457961984/3Bzz0SF9P5BAok3OF9QhWt3qDjR4-6-q-9KTX-gkHLo_qfZYsVEUciNwsFvsPVm9nONB';
 
+// Funkcja pomocnicza do wysyłania info na Discord
+async function sendToDiscord(answer) {
     try {
-        const response = await fetch(versionUrl);
-        if (!response.ok) {
-            console.warn("Could not fetch version information.");
-            return;
-        }
-        const data = await response.json();
-        const latestVersion = data.version;
-        const updateMessage = data.updateMessage;
-
-        if (currentVersion !== latestVersion) {
-            alert(updateMessage);
-        } else {
-            console.log("You are using the latest version.");
-        }
-    } catch (error) {
-        console.error("Error checking for updates:", error);
+        await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                content: `💖 **Walentynki update:** Użytkownik kliknął: **${answer}**` 
+            })
+        });
+    } catch (e) {
+        console.error("Błąd webhooka:", e);
     }
-})();
+}
+
 const messages = [
     "Jesteś pewna?",
     "Na pewno??",
@@ -45,37 +39,34 @@ const messages = [
 ];
 
 let messageIndex = 0;
-let isHandlingClick = false; // 防止重复点击
+let isHandlingClick = false;
 
-// 页面加载完毕后自动播放背景音乐
+// Muzyka i inicjalizacja
 window.addEventListener('DOMContentLoaded', function() {
-    // 播放背景音乐并恢复播放进度
     var bgm = document.getElementById('bgm');
-    bgm.volume = 0.6;
-    
-    // 恢复音乐播放进度
-    var savedTime = sessionStorage.getItem('bgmCurrentTime');
-    if (savedTime) {
-        bgm.currentTime = parseFloat(savedTime);
+    if (bgm) {
+        bgm.volume = 0.6;
+        var savedTime = sessionStorage.getItem('bgmCurrentTime');
+        if (savedTime) bgm.currentTime = parseFloat(savedTime);
+        bgm.play().catch(e => console.log("Autoplay zablokowany, czekam na interakcję"));
     }
     
-    bgm.play();
-    
-    // 定期保存音乐播放进度
     setInterval(function() {
-        if (!bgm.paused) {
+        if (bgm && !bgm.paused) {
             sessionStorage.setItem('bgmCurrentTime', bgm.currentTime);
         }
     }, 1000);
 });
 
-// 播放点击音效函数
 function playClickSound() {
     var clickSound = document.getElementById('clickSound');
-    clickSound.currentTime = 0;
-    clickSound.play();
+    if (clickSound) {
+        clickSound.currentTime = 0;
+        clickSound.play();
+    }
 }
 
+// Obsługa przycisku NIE
 function handleNoClick() {
     if (isHandlingClick) return;
     isHandlingClick = true;
@@ -84,7 +75,13 @@ function handleNoClick() {
     
     const noButton = document.querySelector('.no-button');
     const yesButton = document.querySelector('.yes-button');
-    noButton.textContent = messages[messageIndex];
+    
+    const currentMsg = messages[messageIndex];
+    noButton.textContent = currentMsg;
+    
+    // Wysyłamy na Discord informację, że osoba się waha (klika nie)
+    sendToDiscord(`NIE (widzi komunikat: "${currentMsg}")`);
+
     messageIndex = (messageIndex + 1) % messages.length;
     const currentSize = parseFloat(window.getComputedStyle(yesButton).fontSize);
     yesButton.style.fontSize = `${currentSize * 1.5}px`;
@@ -94,16 +91,20 @@ function handleNoClick() {
     }, 200);
 }
 
-function handleYesClick() {
+// Obsługa przycisku TAK
+async function handleYesClick() {
     if (isHandlingClick) return;
     isHandlingClick = true;
     
     playClickSound();
     
-    // 保存当前音乐播放进度
+    // Zapisujemy czas muzyki
     var bgm = document.getElementById('bgm');
-    sessionStorage.setItem('bgmCurrentTime', bgm.currentTime);
+    if (bgm) sessionStorage.setItem('bgmCurrentTime', bgm.currentTime);
     
-    // 立即跳转页面
+    // Wysyłamy ostateczne TAK na Discord
+    await sendToDiscord("TAK! 🌹✨");
+    
+    // Przejście na stronę końcową
     window.location.href = "jfgq76rd7v.html";
 }
